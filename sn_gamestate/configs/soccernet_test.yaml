@@ -6,18 +6,18 @@
 # Detailed configs for each default component below are located in "sn-gamestate/sn-gamestate/configs" and "tracklab/tracklab/configs"
 # Define here which implementation (yolov8, oc_sort, ..) to use for each generic (detection, tracking, ...) component.
 defaults:
-  - dataset: soccernet_gs
+  - dataset: video
   - eval: gs_hota
-  - engine: offline
+  - engine: video
   - visualization: gamestate  # Save tracking results as a .mp4 video in the run directory specified below (sn-gamestate/outputs/...)
   - modules/bbox_detector: yolo_ultralytics
   - modules/reid: prtreid
-  - modules/track: bpbreid_strong_sort
+  # - modules/track: bpbreid_strong_sort
   # - modules/jersey_number_detect: mmocr
   - modules/team: kmeans_embeddings
-  - modules/team_side: mean_position
-  - modules/tracklet_agg: voting_role_jn
-  - modules/pitch : nbjw_calib
+  # - modules/team_side: mean_position
+  # - modules/tracklet_agg: voting_role_jn
+  # - modules/pitch : nbjw_calib
   - modules/calibration: nbjw_calib
   - _self_
 
@@ -28,13 +28,13 @@ defaults:
 pipeline:
   - bbox_detector
   - reid
-  - track
+  # - track
   # - pitch
-  - calibration
+  # - calibration
   # - jersey_number_detect
-  - tracklet_agg
-  - team
-  - team_side
+  # - tracklet_agg
+  # - team
+  # - team_side
 
 
 # Experiment name
@@ -68,7 +68,7 @@ print_config: False
 dataset:
   nvid: 1  # For a quick first inference, only the first video is processed. Use "-1" to process all the videos.
 #  nframes: -1 # For testing on only a few frames, set to a positive number. Will disable evaluation !
-  eval_set: "valid"  # Tracking is performed on the SoccerNet validation set. Choose from {"train", "valid", "test", "challenge"}.
+  eval_set: "val"  # Tracking is performed on the SoccerNet validation set. Choose from {"train", "valid", "test", "challenge"}.
   dataset_path: ${data_dir}/SoccerNetGS  # The SoccerNet game state dataset is located under the data path (defined above) in the 'SoccerNetGS' folder
   vids_dict: # Use one key per split (valid, test, etc)
     valid: []  # Specify explicitly which video to apply tracking on, e.g. ['SNGS-04', 'SNGS-51'] . Ignored when left empty.

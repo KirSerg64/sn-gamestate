@@ -1,0 +1,10 @@
+# _target_: tracklab.engine.VideoOnlineTrackingEngine
+_target_: sn_gamestate.engine.video_inference.VideoOnlineTrackingEngine
+
+filename: "C:/Users/kiril/_data/Projects/FootballPlayer/DAtaset/121364_0.mp4"
+target_fps: 1
+num_workers: ${num_cores}
+callbacks:
+  progress:
+    _target_: tracklab.callbacks.Progressbar
+  vis: ${visualization}

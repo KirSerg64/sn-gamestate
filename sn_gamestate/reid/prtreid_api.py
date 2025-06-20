@@ -9,7 +9,7 @@ from tracklab.pipeline import DetectionLevelModule
 # FIXME this should be removed and use KeypointsSeriesAccessor and KeypointsFrameAccessor
 from tracklab.utils.coordinates import rescale_keypoints
 from tracklab.utils.collate import default_collate
-from sn_gamestate.reid.prtreid_dataset import ReidDataset
+# from sn_gamestate.reid.prtreid_dataset import ReidDataset
 from prtreid.scripts.main import build_config, build_torchreid_model_engine
 from prtreid.tools.feature_extractor import FeatureExtractor
 from prtreid.utils.imagetools import (
@@ -57,24 +57,9 @@ class PRTReId(DetectionLevelModule):
         super().__init__(batch_size)
         self.cfg = cfg
         self.device = device
-        tracking_dataset.name = dataset.name
-        tracking_dataset.nickname = dataset.nickname
-        self.dataset_cfg = dataset
+
         self.use_keypoints_visibility_scores_for_reid = (
             use_keypoints_visibility_scores_for_reid
-        )
-        tracking_dataset.name = self.dataset_cfg.name
-        tracking_dataset.nickname = self.dataset_cfg.nickname
-        additional_args = {
-            "tracking_dataset": tracking_dataset,
-            "reid_config": self.dataset_cfg,
-            "role_mapping": self.role_mapping,
-            "pose_model": None,
-        }
-        prtreid.data.register_image_dataset(
-            tracking_dataset.name,
-            configure_dataset_class(ReidDataset, **additional_args),
-            tracking_dataset.nickname,
         )
         self.cfg = CN(OmegaConf.to_container(cfg, resolve=True))
         self.download_models(load_weights=self.cfg.model.load_weights,
@@ -176,6 +161,6 @@ class PRTReId(DetectionLevelModule):
         )
         return reid_df
 
-    def train(self):
-        self.engine, self.model = build_torchreid_model_engine(self.cfg)
-        self.engine.run(**engine_run_kwargs(self.cfg))
+    # def train(self):
+    #     self.engine, self.model = build_torchreid_model_engine(self.cfg)
+    #     self.engine.run(**engine_run_kwargs(self.cfg))

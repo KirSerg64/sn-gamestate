@@ -2,6 +2,8 @@ defaults:
   - colors_gs # For more specific color tuning
 
 _target_: tracklab.visualization.VisualizationEngine
+# _target_: sn_gamestate.visualization.visualization_engine_custom.VisualizationEngineCustom
+
 save_videos: True
 
 visualizers:
@@ -16,12 +18,12 @@ visualizers:
   # - Radar: Radar
   frame_counter:
     _target_: tracklab.visualization.FrameCount
-  pitch:
-    _target_: sn_gamestate.visualization.Pitch
+  # pitch:
+  #   _target_: sn_gamestate.visualization.Pitch
   players:
     _target_: sn_gamestate.visualization.CompletePlayerEllipse
-  radar:
-    _target_: sn_gamestate.visualization.Radar
+  # radar:
+  #   _target_: sn_gamestate.visualization.Radar
 
 # Color settings for visualization.
 colors:

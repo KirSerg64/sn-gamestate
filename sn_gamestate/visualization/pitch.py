@@ -5,7 +5,7 @@ from pathlib import Path
 from tracklab.utils.cv2 import draw_text
 from tracklab.visualization import ImageVisualizer
 
-from sn_calibration_baseline.soccerpitch import SoccerPitch
+# from sn_calibration_baseline.soccerpitch import SoccerPitch
 
 import logging
 
@@ -38,16 +38,16 @@ def draw_pitch(
             if name == "Circle central" and len(line) > 4:
                 points = np.array([(int(p["x"] * image_width), int(p["y"]*image_height)) for p in line])
                 ellipse = cv2.fitEllipse(points)
-                cv2.ellipse(patch, ellipse, color=SoccerPitch.palette[name], thickness=line_thickness)
-            else:
-                for j in np.arange(len(line)-1):
-                    cv2.line(
-                        patch,
-                        (int(line[j]["x"] * image_width), int(line[j]["y"] * image_height)),
-                        (int(line[j+1]["x"] * image_width), int(line[j+1]["y"] * image_height)),
-                        color=SoccerPitch.palette[name],
-                        thickness=line_thickness,  # TODO : make this a parameter
-                    )
+                # cv2.ellipse(patch, ellipse, color=SoccerPitch.palette[name], thickness=line_thickness)
+            # else:
+            #     for j in np.arange(len(line)-1):
+            #         cv2.line(
+            #             patch,
+            #             (int(line[j]["x"] * image_width), int(line[j]["y"] * image_height)),
+            #             (int(line[j+1]["x"] * image_width), int(line[j+1]["y"] * image_height)),
+            #             color=SoccerPitch.palette[name],
+            #             thickness=line_thickness,  # TODO : make this a parameter
+            #         )
 
 def draw_radar_view(patch, detections, scale=4, delta=32, group="Ground Truth"):
     pitch_width = 105 + 2 * 10  # pitch size + 2 * margin
