@@ -90,6 +90,32 @@ class CompletePlayerEllipse(TeamVisualizer, EllipseDetection):
                         alpha_bg=0.6,
                     )
 
+class SimplePlayerEllipse(TeamVisualizer, EllipseDetection):
+    """
+    Visualizer for displaying only player detections as ellipses with the same color.
+    """
+    def __init__(self, ellipse_color=(0, 255, 0)):
+        super().__init__()
+        self.ellipse_color = ellipse_color  # BGR color tuple
+
+    def draw_detection(self, image, detection_pred, detection_gt, metric=None):
+        # Draw only the predicted detection as an ellipse with the same color
+        if detection_pred is not None:
+            x1, y1, x2, y2 = detection_pred.bbox.ltrb()
+            center = (int((x1 + x2) / 2), int(y2))
+            width = x2 - x1
+            cv2.ellipse(
+                image,
+                center=center,
+                axes=(int(width), int(0.35 * width)),
+                angle=0.0,
+                startAngle=-45.0,
+                endAngle=235.0,
+                color=self.ellipse_color,
+                thickness=2,
+                lineType=cv2.LINE_AA,
+            )
+
 def pprint(key, value):
     if key == "track_id" and not pd.isna(value):
         return f"ID: {int(value)}"

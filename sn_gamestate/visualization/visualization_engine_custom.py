@@ -1,6 +1,7 @@
 from pathlib import Path
 import cv2
 import logging
+import pandas as pd
 
 from tracklab.visualization.visualization_engine import VisualizationEngine
 from tracklab.callbacks import Progressbar
@@ -26,23 +27,22 @@ class VisualizationEngineCustom(VisualizationEngine):
         tracker_state = engine.tracker_state
 
         # Get all processed frame IDs for this video
-        image_metadatas = tracker_state.image_metadatas[tracker_state.image_metadatas.video_id == video_idx]
-        processed_ids = list(image_metadatas.index)
-        video_name = tracker_state.video_metadatas.loc[video_idx]["name"]
+        processed_ids = list(detections["image_id"].unique())
+        video_name = video_metadata.iloc[video_idx]["name"]
+        video_width = video_metadata.iloc[video_idx]["width"]
+        video_height = video_metadata.iloc[video_idx]["height"]
         video_path = video_name  # Adjust if you need full path
 
         # Prepare video writer if needed
         video_writer = None
-        if self.save_videos and len(image_metadatas) > 0:
-            first_image = image_metadatas.iloc[0]
-            first_frame = cv2.imread(first_image.file_path)
+        if self.save_videos:
             filepath = self.save_dir / "videos" / f"{video_name}.mp4"
             filepath.parent.mkdir(parents=True, exist_ok=True)
             video_writer = cv2.VideoWriter(
                 str(filepath),
                 cv2.VideoWriter_fourcc(*"mp4v"),
                 float(self.video_fps),
-                (first_frame.shape[1], first_frame.shape[0]),
+                (video_width, video_height),
             )
 
         progress.init_progress_bar("vis", "Visualization", len(processed_ids))
@@ -52,13 +52,11 @@ class VisualizationEngineCustom(VisualizationEngine):
             # Prepare detection and prediction data for this frame
             detections_pred = detections[detections.image_id == image_id] if len(detections) else None
             image_pred_row = image_pred.loc[image_id] if image_pred is not None and image_id in image_pred.index else None
-            image_gt_row = tracker_state.image_gt.loc[image_id] if hasattr(tracker_state, "image_gt") and image_id in tracker_state.image_gt.index else None
-            detections_gt = tracker_state.detections_gt[tracker_state.detections_gt.image_id == image_id] if hasattr(tracker_state, "detections_gt") and tracker_state.detections_gt is not None else None
-
+                        
             # Draw frame using visualizers
             for visualizer in self.visualizers.values():
                 try:
-                    visualizer.draw_frame(frame, detections_pred, detections_gt, image_pred_row, image_gt_row)
+                    visualizer.draw_frame(frame, detections_pred, pd.DataFrame([]), image_pred_row, pd.DataFrame([]))
                 except Exception as e:
                     log.warning(f"Visualizer {visualizer} raised error : {e} during drawing.")
 

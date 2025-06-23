@@ -3,7 +3,9 @@
 
 _target_: tracklab.wrappers.ExternalVideo
 
-video_path: "C:/Users/kiril/_data/Projects/FootballPlayer/DAtaset/121364_0.mp4"
+video_path: "C:/Users/kiril/_data/Projects/FootballPlayer/Dataset/output1.mp4"
+# video_path: "D:/Dataset/Football/play_101022025_part1.mp4"
+
 # video_path: "https: Youtube video link"
 # video_path: "PATH/TO/FOLDER_WITH_IMAGES"
 # nframes: 100  # Number of frames to process; set to -1 or leave unset to process all frames

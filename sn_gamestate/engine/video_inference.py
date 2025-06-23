@@ -11,6 +11,7 @@ from lightning import Fabric
 from tracklab.engine import TrackingEngine
 from tracklab.engine.engine import merge_dataframes
 from tracklab.pipeline import Pipeline
+from tracklab.datastruct import TrackerState
 
 import logging
 
@@ -23,15 +24,16 @@ class VideoOnlineTrackingEngine:
         modules: Pipeline,
         filename: str,
         target_fps: int,
-        tracker_state,
+        tracker_state: TrackerState,
         num_workers: int,
         callbacks: "Dict[Callback]" = None,
     ):
         # super().__init__()
         self.module_names = [module.name for module in modules]
-        callbacks = list(callbacks.values()) if callbacks is not None else []
+        self.callbacks = callbacks
+        callbacks_list = list(callbacks.values()) if callbacks is not None else []
 
-        self.fabric = Fabric(callbacks=callbacks)
+        self.fabric = Fabric(callbacks=callbacks_list)
         self.callback = partial(self.fabric.call, engine=self)
         self.num_workers = num_workers
         self.video_filename = filename
@@ -39,6 +41,8 @@ class VideoOnlineTrackingEngine:
         self.tracker_state = tracker_state
         self.img_metadatas = tracker_state.image_metadatas
         self.video_metadatas = tracker_state.video_metadatas
+        self.video_width = 0
+        self.video_height = 0
         self.models = {model.name: model for model in modules}
         self.datapipes = {}
         self.dataloaders = {}
@@ -55,13 +59,17 @@ class VideoOnlineTrackingEngine:
             video_idx=0,
             index=0,
         )
-        detections = self.video_loop()
+        detections, image_preds = self.video_loop()
         self.callback(
             "on_video_loop_end",
-            video_metadata=pd.Series(data={ "name": self.video_filename }),
+            video_metadata=pd.DataFrame(data=[{
+                "name": self.video_filename,
+                "width": self.video_width,
+                "height": self.video_height,
+            }]),
             video_idx=0,
             detections=detections,
-            image_pred=None,
+            image_pred=image_preds,
         )
         self.callback("on_dataset_track_end")
 
@@ -82,6 +90,7 @@ class VideoOnlineTrackingEngine:
         # print('in offline.py, model_names: ', model_names)
         frame_idx = -1
         detections = pd.DataFrame()
+        image_preds = pd.DataFrame()
         while video_cap.isOpened():
             frame_idx += 1
             ret, frame = video_cap.read()
@@ -89,6 +98,11 @@ class VideoOnlineTrackingEngine:
                 break
             if frame_idx % frame_modulo != 0:
                 continue
+
+            if frame_idx == 0:
+                self.video_width = int(video_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+                self.video_height = int(video_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                log.info(f"Video {video_filename} opened with resolution {self.video_width}x{self.video_height}")
 
             image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
@@ -117,7 +131,7 @@ class VideoOnlineTrackingEngine:
                           image_metadata=metadata, image=image,
                           image_idx=frame_idx, detections=detections)
 
-        return detections
+        return detections, image_preds
 
     def default_step(self, batch: Any, task: str, detections: pd.DataFrame, metadata, **kwargs):
         model = self.models[task]

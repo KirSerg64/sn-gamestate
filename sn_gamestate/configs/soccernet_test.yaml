@@ -27,7 +27,7 @@ defaults:
 # Use 'pipeline: []' for an empty pipeline (e.g. when loading all tracking results from a saved .pklz tracker state)
 pipeline:
   - bbox_detector
-  - reid
+  # - reid
   # - track
   # - pitch
   # - calibration
