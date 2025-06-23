@@ -20,8 +20,8 @@ cfg:
   data:
     root: "${data_dir}/reid"
     type: "image"
-    sources: ["SoccerNet123"]
-    targets: ["SoccerNet123"]
+    sources: ["SoccerNet"]
+    targets: ["SoccerNet"]
     height: 256
     width: 128
     combineall: False

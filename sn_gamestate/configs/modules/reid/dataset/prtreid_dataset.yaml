@@ -1,4 +1,4 @@
-name: "SoccerNet123"
+name: "SoccerNet"
 nickname: "sn"
 fig_size: [384, 128]
 mask_size: [64, 32]
