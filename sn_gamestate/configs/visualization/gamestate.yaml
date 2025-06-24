@@ -16,13 +16,15 @@ visualizers:
   # - Players: Player, PlayerEllipse, CompletePlayerEllipse
   # - Pitch: Pitch
   # - Radar: Radar
-  frame_counter:
-    _target_: tracklab.visualization.FrameCount
+  # frame_counter:
+    # _target_: tracklab.visualization.FrameCount
   # pitch:
   #   _target_: sn_gamestate.visualization.Pitch
+  # tracking:
+  #   _target_: tracklab.visualization.TrackingLine  
   players:
-    _target_: sn_gamestate.visualization.CompletePlayerEllipse
-    # _target_: sn_gamestate.visualization.SimplePlayerEllipse
+    # _target_: sn_gamestate.visualization.CompletePlayerEllipse
+    _target_: sn_gamestate.visualization.SimplePlayerEllipse
   # radar:
   #   _target_: sn_gamestate.visualization.Radar
 

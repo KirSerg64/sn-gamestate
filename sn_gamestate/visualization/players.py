@@ -94,9 +94,14 @@ class SimplePlayerEllipse(TeamVisualizer, EllipseDetection):
     """
     Visualizer for displaying only player detections as ellipses with the same color.
     """
-    def __init__(self, ellipse_color=(0, 255, 0)):
+    def __init__(self, display_track_id=True, display_role=True, ellipse_color=(0, 255, 0)):
         super().__init__()
         self.ellipse_color = ellipse_color  # BGR color tuple
+        self.display_list = [
+            "track_id" if display_track_id else None,
+            "role" if display_role else None,
+        ]
+        self.display_list = [item for item in self.display_list if item]
 
     def draw_detection(self, image, detection_pred, detection_gt, metric=None):
         # Draw only the predicted detection as an ellipse with the same color
@@ -114,6 +119,21 @@ class SimplePlayerEllipse(TeamVisualizer, EllipseDetection):
                 color=self.ellipse_color,
                 thickness=2,
                 lineType=cv2.LINE_AA,
+            )
+            txt = [pprint(v, getattr(detection_pred, v, lambda: None)) for v in self.display_list]
+            txt = "\n".join([v for v in txt if v != ""])
+            draw_text(
+                image,
+                txt,
+                (center[0], center[1]),
+                fontFace=2,           # Use a bolder font
+                fontScale=1.2,        # Make the text larger
+                thickness=2,          # Thicker text for readability
+                alignH="c",
+                alignV="c",
+                color_bg=self.ellipse_color,
+                color_txt=(0, 0, 128),  # Use black text for good contrast
+                alpha_bg=0.7,         # Slightly less transparent background
             )
 
 def pprint(key, value):
