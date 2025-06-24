@@ -21,7 +21,8 @@ visualizers:
   # pitch:
   #   _target_: sn_gamestate.visualization.Pitch
   players:
-    _target_: sn_gamestate.visualization.SimplePlayerEllipse
+    _target_: sn_gamestate.visualization.CompletePlayerEllipse
+    # _target_: sn_gamestate.visualization.SimplePlayerEllipse
   # radar:
   #   _target_: sn_gamestate.visualization.Radar
 
