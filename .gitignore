@@ -5,8 +5,6 @@ models/
 outputs/
 multiruns/
 pretrained_models/
-sn_gamestate/configs/dataset/video.yaml
-sn_gamestate/configs/engine/video.yaml
 .vscode/
 notebooks/
 weights/
