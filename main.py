@@ -22,14 +22,6 @@ log = logging.getLogger(__name__)
 warnings.filterwarnings("ignore")
 
 
-def construct_pipeline(cfg):
-    """Constructs a pipeline based on the provided configuration."""
-    
-
-    return Pipeline(
-            models=[ ]
-        )
-
 @hydra.main(version_base=None, config_path="pkg://sn_gamestate.configs", config_name="soccernet_test")
 def main(cfg):
     device = init_environment(cfg)

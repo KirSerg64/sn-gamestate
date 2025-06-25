@@ -123,10 +123,17 @@ class VideoOnlineTrackingEngine:
                     batch = type(model).collate_fn([(frame_idx, batch)])
                     detections = self.default_step(batch, model_name, detections, metadata)
                 elif model.level == "detection":
-                    for idx, detection in dets.iterrows():
-                        batch = model.preprocess(image=image, detection=detection, metadata=metadata)
-                        batch = type(model).collate_fn([(detection.name, batch)])
-                        detections = self.default_step(batch, model_name, detections, metadata)
+                    if not dets.empty:
+                        # Batch all crops at once for embedding calculation
+                        batches = []
+                        idxs = []
+                        for idx, detection in dets.iterrows():
+                            batch = model.preprocess(image=image, detection=detection, metadata=metadata)
+                            batches.append(batch)
+                            idxs.append(detection.name)
+                        if batches:
+                            batch = type(model).collate_fn(list(zip(idxs, batches)))
+                            detections = self.default_step(batch, model_name, detections, metadata)
             self.callback("on_image_loop_end",
                           image_metadata=metadata, image=image,
                           image_idx=frame_idx, detections=detections)
