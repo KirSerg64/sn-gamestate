@@ -50,6 +50,7 @@ class VisualizationEngineCustom(VisualizationEngine):
         progress.init_progress_bar("vis", "Visualization", len(processed_ids))
 
         # Use the frame_generator to yield frames by processed_ids
+        tracklet_image_ids = {int(track_id):0 for track_id in detections["track_id"].unique()}
         for image_id, frame in frame_generator(video_path, processed_ids):
             # Prepare detection and prediction data for this frame
             detections_pred = detections[detections.image_id == image_id] if len(detections) else None
@@ -57,9 +58,12 @@ class VisualizationEngineCustom(VisualizationEngine):
 
             # Save original image if required
             if self.save_images:
-                filepath = save_dir / "images" / f"{image_id}.jpg"
-                filepath.parent.mkdir(parents=True, exist_ok=True)
-                assert cv2.imwrite(str(filepath), frame)
+                for track_id in detections[detections.image_id == image_id]["track_id"]:
+                    track_id = int(track_id)
+                    filepath = save_dir / "images" / f"seq_{track_id}" / "img1" / f"{tracklet_image_ids[track_id]:06d}.jpg"
+                    tracklet_image_ids[track_id] += 1
+                    filepath.parent.mkdir(parents=True, exist_ok=True)
+                    assert cv2.imwrite(str(filepath), frame)
    
             # Draw frame using visualizers
             for visualizer in self.visualizers.values():
