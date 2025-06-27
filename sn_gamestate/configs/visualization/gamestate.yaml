@@ -5,6 +5,8 @@ defaults:
 _target_: sn_gamestate.visualization.visualization_engine_custom.VisualizationEngineCustom
 
 save_videos: True
+save_images: True
+save_dir: ${project_dir}/outputs/visualization
 
 visualizers:
   # Available Visualizers:

@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 import cv2
 import logging
@@ -28,15 +29,16 @@ class VisualizationEngineCustom(VisualizationEngine):
 
         # Get all processed frame IDs for this video
         processed_ids = list(detections["image_id"].unique())
-        video_name = video_metadata.iloc[video_idx]["name"]
+        video_path = video_metadata.iloc[video_idx]["name"]
         video_width = video_metadata.iloc[video_idx]["width"]
         video_height = video_metadata.iloc[video_idx]["height"]
-        video_path = video_name  # Adjust if you need full path
+        video_dir, video_name = os.path.split(video_path)
+        save_dir = Path(video_dir) / "outputs"
 
         # Prepare video writer if needed
         video_writer = None
         if self.save_videos:
-            filepath = self.save_dir / "videos" / f"{video_name}.mp4"
+            filepath = save_dir / "videos_res" / f"{video_name}.mp4"
             filepath.parent.mkdir(parents=True, exist_ok=True)
             video_writer = cv2.VideoWriter(
                 str(filepath),
@@ -52,19 +54,19 @@ class VisualizationEngineCustom(VisualizationEngine):
             # Prepare detection and prediction data for this frame
             detections_pred = detections[detections.image_id == image_id] if len(detections) else None
             image_pred_row = image_pred.loc[image_id] if image_pred is not None and image_id in image_pred.index else None
-                        
+
+            # Save original image if required
+            if self.save_images:
+                filepath = save_dir / "images" / f"{image_id}.jpg"
+                filepath.parent.mkdir(parents=True, exist_ok=True)
+                assert cv2.imwrite(str(filepath), frame)
+   
             # Draw frame using visualizers
             for visualizer in self.visualizers.values():
                 try:
                     visualizer.draw_frame(frame, detections_pred, pd.DataFrame([]), image_pred_row, pd.DataFrame([]))
                 except Exception as e:
                     log.warning(f"Visualizer {visualizer} raised error : {e} during drawing.")
-
-            # Save image if required
-            if self.save_images:
-                filepath = self.save_dir / "images" / str(video_name) / f"{image_id}.jpg"
-                filepath.parent.mkdir(parents=True, exist_ok=True)
-                assert cv2.imwrite(str(filepath), frame)
 
             # Write to video if required
             if self.save_videos and video_writer is not None:

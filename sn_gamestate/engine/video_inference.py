@@ -1,6 +1,7 @@
 import platform
 from functools import partial
 from typing import Any
+# import os
 
 import cv2
 import numpy as np
@@ -12,8 +13,10 @@ from tracklab.engine import TrackingEngine
 from tracklab.engine.engine import merge_dataframes
 from tracklab.pipeline import Pipeline
 from tracklab.datastruct import TrackerState
+# from utils import save_tracklets_MOT
 
 import logging
+import time
 
 log = logging.getLogger(__name__)
 
@@ -144,7 +147,8 @@ class VideoOnlineTrackingEngine:
         model = self.models[task]
         self.callback(f"on_module_step_start", task=task, batch=batch)
         idxs, batch = batch
-        idxs = idxs.cpu() if isinstance(idxs, torch.Tensor) else idxs
+        idxs = idxs.cpu().numpy() if isinstance(idxs, torch.Tensor) else idxs
+        start_time = time.time()
         if model.level == "image":
             log.info(f"step : {idxs}")
             batch_metadatas = pd.DataFrame([metadata])
@@ -166,9 +170,26 @@ class VideoOnlineTrackingEngine:
                 metadatas=None,
                 **kwargs,
             )
+        end_time = time.time()
+        log.info(f"Module {task} step took {end_time - start_time:.2f} seconds")
         detections = merge_dataframes(detections, batch_detections)
         self.callback(
             f"on_module_step_end", task=task, batch=batch, detections=detections
         )
         return detections
+
+    # def save_predictions_to_mot(self, detections: pd.DataFrame, output_dir: str, seq_name: str = None):
+    #     """
+    #     Save resulting predictions to MOT format using utils.save_tracklets_MOT.
+
+    #     Args:
+    #         detections (pd.DataFrame): DataFrame with tracking results.
+    #         output_dir (str): Directory to save MOT results.
+    #         seq_name (str, optional): Sequence name for MOT file. Defaults to video filename.
+    #     """
+    #     if seq_name is None:
+    #         seq_name = str(self.video_filename)
+    #     save_tracklets_MOT(detections, os.path.join(output_dir, seq_name))
+    #     log.info(f"Saved MOT results to {output_dir} for sequence {seq_name}")
+
 

@@ -126,9 +126,9 @@ class SimplePlayerEllipse(TeamVisualizer, EllipseDetection):
                 image,
                 txt,
                 (center[0], center[1]),
-                fontFace=2,           # Use a bolder font
-                fontScale=1.2,        # Make the text larger
-                thickness=2,          # Thicker text for readability
+                fontFace=1,
+                fontScale=0.75,
+                thickness=1,
                 alignH="c",
                 alignV="c",
                 color_bg=self.ellipse_color,
