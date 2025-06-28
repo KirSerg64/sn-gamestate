@@ -50,7 +50,8 @@ class VisualizationEngineCustom(VisualizationEngine):
         progress.init_progress_bar("vis", "Visualization", len(processed_ids))
 
         # Use the frame_generator to yield frames by processed_ids
-        tracklet_image_ids = {int(track_id):0 for track_id in detections["track_id"].unique()}
+        image_global_id = 0
+        mot_annotations = []
         for image_id, frame in frame_generator(video_path, processed_ids):
             # Prepare detection and prediction data for this frame
             detections_pred = detections[detections.image_id == image_id] if len(detections) else None
@@ -58,12 +59,20 @@ class VisualizationEngineCustom(VisualizationEngine):
 
             # Save original image if required
             if self.save_images:
-                for track_id in detections[detections.image_id == image_id]["track_id"]:
-                    track_id = int(track_id)
-                    filepath = save_dir / "images" / f"seq_{track_id}" / "img1" / f"{tracklet_image_ids[track_id]:06d}.jpg"
-                    tracklet_image_ids[track_id] += 1
-                    filepath.parent.mkdir(parents=True, exist_ok=True)
-                    assert cv2.imwrite(str(filepath), frame)
+                filepath = save_dir / f"seq_{video_idx}" / "img1" / f"{image_global_id:06d}.jpg"               
+                filepath.parent.mkdir(parents=True, exist_ok=True)
+                assert cv2.imwrite(str(filepath), frame)
+            # Prepare MOT annotations for this frame
+                if detections_pred is not None and not detections_pred.empty:
+                    mot_annotations.extend(detections_pred[['track_id', 'bbox_ltwh', 'bbox_conf']].apply(
+                        lambda x: (
+                            f"{image_global_id},{int(x['track_id'])},{x['bbox_ltwh'][0]:.2f},"
+                            f"{x['bbox_ltwh'][1]:.2f},{x['bbox_ltwh'][2]:.2f},{x['bbox_ltwh'][3]:.2f},"
+                            f"{x['bbox_conf']:.5f},-1,-1,-1\n"
+                        ),
+                        axis=1
+                    ).tolist())
+                image_global_id += 1
    
             # Draw frame using visualizers
             for visualizer in self.visualizers.values():
@@ -77,6 +86,12 @@ class VisualizationEngineCustom(VisualizationEngine):
                 video_writer.write(frame)
 
             progress.on_module_step_end(None, "vis", None, None)
+
+        # Save all tracklet records into a single file named seq_{video_idx}.txt
+        mot_annotation_path = save_dir / f"seq_{video_idx}.txt"
+        with open(mot_annotation_path, 'w') as f:
+            for row in mot_annotations:
+                f.write(row)
 
         if video_writer is not None:
             video_writer.release()

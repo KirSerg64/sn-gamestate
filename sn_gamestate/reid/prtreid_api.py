@@ -161,6 +161,6 @@ class PRTReId(DetectionLevelModule):
         )
         return reid_df
 
-    # def train(self):
-    #     self.engine, self.model = build_torchreid_model_engine(self.cfg)
-    #     self.engine.run(**engine_run_kwargs(self.cfg))
+    def train(self):
+        self.engine, self.model = build_torchreid_model_engine(self.cfg)
+        self.engine.run(**engine_run_kwargs(self.cfg))

@@ -28,5 +28,5 @@ class ResultsSaver(Callback):
         base_name, _ = os.path.splitext(file_name)
         # Create MOT output directory
         output_path = os.path.join(dir_name,  "outputs")
-        save_tracklab_df_to_mot(detections, output_path)
+        save_tracklab_df_to_mot(detections, video_idx, output_path)
         log.info(f"Saved MOT results to {output_path}")

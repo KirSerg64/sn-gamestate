@@ -9,5 +9,5 @@ callbacks:
   progress:
     _target_: sn_gamestate.callbacks.progress.Progressbar
   vis: ${visualization}
-  mot_saver: 
-    _target_: sn_gamestate.callbacks.save_results.ResultsSaver
+  # mot_saver: 
+  #   _target_: sn_gamestate.callbacks.save_results.ResultsSaver
