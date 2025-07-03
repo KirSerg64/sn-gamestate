@@ -8,7 +8,7 @@
 defaults:
   - dataset: video
   - eval: gs_hota
-  - engine: video
+  - engine: offline
   - visualization: gamestate  # Save tracking results as a .mp4 video in the run directory specified below (sn-gamestate/outputs/...)
   - modules/bbox_detector: yolo_ultralytics
   - modules/reid: prtreid
@@ -25,10 +25,10 @@ defaults:
 # - Defines the order in which the modules will be called
 # - If loading a tracking state from disk, remove modules whose outputs are already provided in the loaded state
 # Use 'pipeline: []' for an empty pipeline (e.g. when loading all tracking results from a saved .pklz tracker state)
-pipeline:
-  - bbox_detector
-  - reid
-  - track
+pipeline: []
+  # - bbox_detector
+  # - reid
+  # - track
   # - pitch
   # - calibration
   # - jersey_number_detect

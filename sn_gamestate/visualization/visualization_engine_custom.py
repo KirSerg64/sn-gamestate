@@ -6,6 +6,8 @@ import pandas as pd
 
 from tracklab.visualization.visualization_engine import VisualizationEngine
 from tracklab.callbacks import Progressbar
+from tracklab.utils.cv2 import cv2_load_image
+
 
 from sn_gamestate.utils.frame_extractor import frame_generator  # Make sure this path is correct
 
@@ -28,10 +30,13 @@ class VisualizationEngineCustom(VisualizationEngine):
         tracker_state = engine.tracker_state
 
         # Get all processed frame IDs for this video
-        processed_ids = list(detections["image_id"].unique())
-        video_path = video_metadata.iloc[video_idx]["name"]
-        video_width = video_metadata.iloc[video_idx]["width"]
-        video_height = video_metadata.iloc[video_idx]["height"]
+        # processed_ids = list(detections["image_id"].unique())
+        # video_path = video_metadata.iloc[video_idx]["name"]
+        # video_width = video_metadata.iloc[video_idx]["width"]
+        # video_height = video_metadata.iloc[video_idx]["height"]
+        video_path = video_metadata["name"]
+        video_width = video_metadata["width"]
+        video_height = video_metadata["height"]
         video_dir, video_name = os.path.split(video_path)
         save_dir = Path(video_dir) / "outputs"
 
@@ -47,16 +52,18 @@ class VisualizationEngineCustom(VisualizationEngine):
                 (video_width, video_height),
             )
 
-        progress.init_progress_bar("vis", "Visualization", len(processed_ids))
+        progress.init_progress_bar("vis", "Visualization", len(image_pred.values))
 
         # Use the frame_generator to yield frames by processed_ids
         image_global_id = 0
         mot_annotations = []
-        for image_id, frame in frame_generator(video_path, processed_ids):
+        for image_pred_row in image_pred.values:# frame_generator(video_path, processed_ids):
             # Prepare detection and prediction data for this frame
+            image_id = image_pred_row[0]
             detections_pred = detections[detections.image_id == image_id] if len(detections) else None
-            image_pred_row = image_pred.loc[image_id] if image_pred is not None and image_id in image_pred.index else None
-
+            # image_pred_row = image_pred.loc[image_id] if image_pred is not None and image_id in image_pred.index else None
+            frame = cv2_load_image(image_pred_row[5])  # Use cv2_load_image to load the frame
+            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)  # Convert to RGB if needed
             # Save original image if required
             if self.save_images:
                 filepath = save_dir / f"seq_{video_idx}" / "img1" / f"{image_global_id:06d}.jpg"               

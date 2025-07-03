@@ -7,7 +7,7 @@ import hydra
 import warnings
 import logging
 
-from tracklab.datastruct import TrackerState
+from tracklab.datastruct import TrackerState, TrackingDataset
 from tracklab.pipeline import Pipeline
 from tracklab.utils import monkeypatch_hydra, progress, wandb
 from tracklab.engine.video import VideoOnlineTrackingEngine
