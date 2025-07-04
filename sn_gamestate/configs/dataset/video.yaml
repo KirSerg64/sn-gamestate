@@ -1,7 +1,8 @@
 # defaults:
 #   - default
 
-_target_: tracklab.wrappers.ExternalVideo
+# _target_: tracklab.wrappers.ExternalVideo
+_target_: sn_gamestate.wrappers.ExternalVideo
 
 video_path: "C:/Users/kiril/_data/Projects/FootballPlayer/Dataset/121364_0_part2.mp4"
 # video_path: "D:/Dataset/Football/play_101022025_part1.mp4"
