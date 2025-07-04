@@ -57,12 +57,12 @@ class VisualizationEngineCustom(VisualizationEngine):
         # Use the frame_generator to yield frames by processed_ids
         image_global_id = 0
         mot_annotations = []
-        for image_pred_row in image_pred.values:# frame_generator(video_path, processed_ids):
+        for idx, image_pred_row in image_pred.iterrows():# frame_generator(video_path, processed_ids):
             # Prepare detection and prediction data for this frame
-            image_id = image_pred_row[0]
+            image_id = image_pred_row['id']
             detections_pred = detections[detections.image_id == image_id] if len(detections) else None
             # image_pred_row = image_pred.loc[image_id] if image_pred is not None and image_id in image_pred.index else None
-            frame = cv2_load_image(image_pred_row[5])  # Use cv2_load_image to load the frame
+            frame = cv2_load_image(image_pred_row['file_path'])  # Use cv2_load_image to load the frame
             frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)  # Convert to RGB if needed
             # Save original image if required
             if self.save_images:
