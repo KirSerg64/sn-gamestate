@@ -71,6 +71,8 @@ class VisualizationEngineCustom(VisualizationEngine):
                 assert cv2.imwrite(str(filepath), frame)
             # Prepare MOT annotations for this frame
                 if detections_pred is not None and not detections_pred.empty:
+                    if 'track_id' not in detections_pred.columns:
+                        detections_pred['track_id'] = -1
                     mot_annotations.extend(detections_pred[['track_id', 'bbox_ltwh', 'bbox_conf']].apply(
                         lambda x: (
                             f"{image_global_id},{int(x['track_id'])},{x['bbox_ltwh'][0]:.2f},"

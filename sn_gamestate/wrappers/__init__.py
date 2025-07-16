@@ -1,1 +1,1 @@
-from .external_video import ExternalVideo
+from .dataset.external_video import ExternalVideo
