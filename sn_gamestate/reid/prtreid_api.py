@@ -5,13 +5,20 @@ import torch
 from omegaconf import OmegaConf
 from yacs.config import CfgNode as CN
 
+from albumentations import (
+    Resize, Compose, Normalize
+)
+from albumentations.pytorch import ToTensorV2
+
 from tracklab.pipeline import DetectionLevelModule
 # FIXME this should be removed and use KeypointsSeriesAccessor and KeypointsFrameAccessor
 from tracklab.utils.coordinates import rescale_keypoints
 from tracklab.utils.collate import default_collate
 # from sn_gamestate.reid.prtreid_dataset import ReidDataset
 from prtreid.scripts.main import build_config, build_torchreid_model_engine
-from prtreid.tools.feature_extractor import FeatureExtractor
+# from prtreid.tools.feature_extractor import FeatureExtractor
+from sn_gamestate.tools.feature_extractor import FeatureExtractor
+
 from prtreid.utils.imagetools import (
     build_gaussian_heatmaps,
 )
@@ -35,12 +42,18 @@ from prtreid.scripts.default_config import engine_run_kwargs
 from tracklab.utils.download import download_file
 
 
+
 class PRTReId(DetectionLevelModule):
     collate_fn = default_collate
     input_columns = ["bbox_ltwh"]
     output_columns = ["embeddings", "visibility_scores", "body_masks", "role_detection", "role_confidence"]
     forget_columns = ["embeddings", "body_masks"]
     role_mapping = {'ball': 0, 'goalkeeper': 1, 'other': 2, 'player': 3, 'referee': 4, None: -1}
+
+    CROP_HEIGHT = 256
+    CROP_WIDTH = 128
+    NORM_MEAN = (0.485, 0.456, 0.406), # imagenet mean
+    NORM_STD = (0.229, 0.224, 0.225), # imagenet std
 
     def __init__(
         self,
@@ -77,6 +90,18 @@ class PRTReId(DetectionLevelModule):
         self.training_enabled = training_enabled
         self.feature_extractor = None
         self.model = None
+        # Build transform functions
+        normalize = Normalize(
+            mean=(0.485, 0.456, 0.406), # imagenet mean
+            std=(0.229, 0.224, 0.225), # imagenet std
+            max_pixel_value=255.0,
+            always_apply=True,
+        )
+        self._image_transfrom = Compose([
+            Resize(self.CROP_HEIGHT, self.CROP_WIDTH),
+            normalize,
+            ToTensorV2(),
+        ])
 
     def download_models(self, load_weights, pretrained_path, backbone):
         if Path(load_weights).name == "prtreid-soccernet-baseline.pth.tar":
@@ -92,12 +117,21 @@ class PRTReId(DetectionLevelModule):
     def preprocess(
         self, image, detection: pd.Series, metadata: pd.Series
     ):  # Tensor RGB (1, 3, H, W)
-        mask_w, mask_h = 32, 64
+        # mask_w, mask_h = 32, 64
         l, t, r, b = detection.bbox.ltrb(
             image_shape=(image.shape[1], image.shape[0]), rounded=True
         )
-        crop = image[t:b, l:r]
-        crop = Unbatchable([crop])
+        crop = image[t:b, l:r].copy()
+        crop = self._image_transfrom(**{'image': crop})['image']
+        # Resize crop to fixed size (256x128 is common for ReID)
+        # crop = torch.nn.functional.interpolate(
+        #     crop.unsqueeze(0).permute(0, 3, 1, 2),  # Add batch dim and move channels to correct position
+        #     size=(256, 128),
+        #     mode='bilinear',
+        #     align_corners=False
+        # ).squeeze(0)  # Remove batch dim and restore original format
+        # crop = Unbatchable([crop])
+
         batch = {
             "img": crop,
         }
@@ -107,7 +141,7 @@ class PRTReId(DetectionLevelModule):
     @torch.no_grad()
     def process(self, batch, detections: pd.DataFrame, metadatas: pd.DataFrame):
         im_crops = batch["img"]
-        im_crops = [im_crop.cpu().detach().numpy() for im_crop in im_crops]
+        # im_crops = [im_crop.cpu().detach().numpy() for im_crop in im_crops]
         if "masks" in batch:
             external_parts_masks = batch["masks"]
             external_parts_masks = external_parts_masks.cpu().detach().numpy()
