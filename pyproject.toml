@@ -17,7 +17,9 @@ dependencies = [
     "torchreid @ git+https://github.com/VlSomers/bpbreid",
     "lightning==2.0.9",
     "tracklab_calibration",
-    "numpy<2.0",
+    "numpy",
+    "supervision",
+    "tensorrt==10.7",
 ]
 
 [project.entry-points.tracklab_plugin]
