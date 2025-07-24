@@ -1,3 +1,4 @@
+import argparse
 import os
 from pathlib import Path
 
@@ -7,7 +8,7 @@ import hydra
 import warnings
 import logging
 
-from tracklab.datastruct import TrackerState, TrackingDataset
+from tracklab.datastruct import TrackerState
 from tracklab.pipeline import Pipeline
 from tracklab.utils import monkeypatch_hydra, progress, wandb
 from tracklab.engine.video import VideoOnlineTrackingEngine
@@ -18,12 +19,14 @@ from omegaconf import OmegaConf
 
 os.environ["HYDRA_FULL_ERROR"] = "1"
 log = logging.getLogger(__name__)
-
 warnings.filterwarnings("ignore")
 
 
-@hydra.main(version_base=None, config_path="pkg://sn_gamestate.configs", config_name="soccernet_test")
+@hydra.main(version_base=None, config_path="pkg://sn_gamestate.configs", config_name=None)
 def main(cfg):
+    # with initialize(version_base=None, config_path="pkg://sn_gamestate.configs"б):
+        # cfg = compose(config_name=config_name)
+        # HydraConfig.instance().set_config(cfg)
     device = init_environment(cfg)
 
     log.info("Start processing")

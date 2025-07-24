@@ -3133,3 +3133,24 @@ sdist = { url = "https://files.pythonhosted.org/packages/3f/50/bad581df71744867e
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b7/1a/7e4798e9339adc931158c9d69ecc34f5e6791489d469f5e50ec15e35f458/zipp-3.21.0-py3-none-any.whl", hash = "sha256:ac1bbe05fd2991f160ebce24ffbac5f6d11d83dc90891255885223d42b3cd931", size = 9630 },
 ]
+
+[[package]]
+name = "supervision"
+version = "0.19.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "opencv-python" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b2/d4/85e79a0f8e0a4dade13c7410fa63aba61969950a08862de2520839089ed5/supervision-0.19.0.tar.gz", hash = "sha256:c6e4e1cac2de60ea5fd1c7ac7d2af1dc5ad3df972ecf4c3806b5679802de37e9", size = 24350 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3d/11/743350caff73970788b553858a5354fd9a4bc4a855901a0ed702c8c92f28/supervision-0.19.0-py3-none-any.whl", hash = "sha256:3e5e80973c8c7c79efe838a178a34ba9d91fc5e3250dd5f00638dee6cd8558f9", size = 24611 },
+]
+
+[[package]]
+name = "tensorrt"
+version = "10.7.0"
+source = { registry = "https://pypi.ngc.nvidia.com" }
+wheels = [
+    { url = "https://pypi.ngc.nvidia.com/packages/packages/tensorrt-10.7.0-cp39-none-linux_x86_64.whl", hash = "" },
+]
